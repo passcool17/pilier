@@ -1,0 +1,7 @@
+{
+  "name": "pilier",
+  "private": true,
+  "type": "module",
+  "scripts": { "test:ordre-e2e": "node tests/ordre.e2e.mjs" },
+  "devDependencies": { "playwright-core": "^1.64.1" }
+}
