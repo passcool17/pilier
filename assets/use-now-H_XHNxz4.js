@@ -1,0 +1,1 @@
+import{P as e,j as t}from"./store-PybZaVuq.js";var n=e(t(),1);function r(e=!0,t=200){let[r,i]=(0,n.useState)(()=>Date.now());return(0,n.useEffect)(()=>{if(!e)return;let n=window.setInterval(()=>i(Date.now()),t);return()=>window.clearInterval(n)},[e,t]),r}export{r as t};
