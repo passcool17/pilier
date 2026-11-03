@@ -1,5 +1,5 @@
 // Service worker de Pilier : tout est mis en cache pour marcher hors ligne.
-const CACHE = "pilier-v3";
+const CACHE = "pilier-v4";
 const FILES = [
   "./assets/button-BVrDykAX.js",
   "./assets/chevron-left-DYPWKxBk.js",
