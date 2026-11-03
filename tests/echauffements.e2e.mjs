@@ -15,15 +15,20 @@ const APRES = {
   stiff: ['Avant de cuisse, debout', 'Haut du dos et dorsaux', 'Épaules et triceps', 'Poitrine dans l’encadrement', 'Avant de la hanche', 'Fessier (figure 4)'],
   hurt: ['Avant de cuisse, debout', 'Haut du dos et dorsaux', 'Épaules et triceps', 'Poitrine dans l’encadrement', 'Fessier (figure 4)'],
 };
+const CLIP_AVANT = { ok: 'warmup-normal', stiff: 'warmup-raide', hurt: 'warmup-mal' };
 const BOUTON = { stiff: 'Raide', hurt: 'Mal' };
 let ok = 0, ko = 0;
 const check = (nom, a, b) => { const bon = JSON.stringify(a) === JSON.stringify(b); bon ? ok++ : ko++; console.log(bon ? '✔' : '✘', nom, bon ? '' : `\n   reçu   ${a.join(' | ')}\n   attendu ${b.join(' | ')}`); };
 const shot = async (p, n) => SHOTS && p.screenshot({ path: `${SHOTS}/${n}.png`, fullPage: true });
+// Clips joués : on note l'adresse de chaque lecture (sans vraiment jouer le son).
+const joues = async p => (await p.evaluate(() => window.__joues || [])).map(u => u.split('/').pop().split('?')[0].replace('.mp3', ''));
+const voixOn = async p => { await p.evaluate(() => { window.__joues = []; const k = 'pilier-v1', s = JSON.parse(localStorage.getItem(k)); s.state.voiceOn = true; localStorage.setItem(k, JSON.stringify(s)); }); await p.reload({ waitUntil: 'load' }); await p.waitForTimeout(1200); };
 const titres = p => p.locator('main ul.mt-6 li button span.block.text-sm.font-medium').allInnerTexts();
 
 const b = await chromium.launch();
 for (const feel of ['ok', 'stiff', 'hurt']) {
   const ctx = await b.newContext({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2.625, isMobile: true, hasTouch: true });
+  await ctx.addInitScript(() => { window.__joues = []; HTMLMediaElement.prototype.play = function () { window.__joues.push(this.src); setTimeout(() => this.onended && this.onended(), 50); return Promise.resolve(); }; });
   const p = await ctx.newPage();
   const erreurs = []; p.on('pageerror', e => erreurs.push(e.message)); p.on('dialog', d => d.accept());
   await p.goto(BASE, { waitUntil: 'load' }); await p.waitForTimeout(1200);
@@ -32,6 +37,8 @@ for (const feel of ['ok', 'stiff', 'hurt']) {
   await p.getByRole('link', { name: 'Séance', exact: true }).click(); await p.waitForTimeout(900);
   await p.getByRole('button', { name: /Commencer/ }).click(); await p.waitForTimeout(500);
   check(`échauffement ${feel}`, await titres(p), AVANT[feel]);
+  await voixOn(p);
+  check(`clip échauffement ${feel}`, (await joues(p)).slice(0, 1), [CLIP_AVANT[feel]]);
   const go = p.getByRole('button', { name: /^Entraînement/ });
   check(`bouton bloqué avant de tout cocher ${feel}`, [await go.isDisabled()], [true]);
   await shot(p, `${feel}-1-echauffement`);
@@ -42,6 +49,7 @@ for (const feel of ['ok', 'stiff', 'hurt']) {
   await p.evaluate(() => { const k = 'pilier-v1', s = JSON.parse(localStorage.getItem(k)); s.state.active.phase = 'cooldown'; localStorage.setItem(k, JSON.stringify(s)); });
   await p.reload({ waitUntil: 'load' }); await p.waitForTimeout(1200);
   check(`étirements ${feel}`, await titres(p), APRES[feel]);
+  check(`clip étirements ${feel}`, (await joues(p)).slice(0, 1), ['etirements']);
   const intro = await p.locator('main p.mt-2.text-sm.text-muted').first().innerText();
   check(`texte étirements ${feel}`, [intro.startsWith(`${APRES[feel].length} étirements doux`)], [true]);
   await shot(p, `${feel}-2-etirements`);

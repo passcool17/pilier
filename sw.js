@@ -1,5 +1,5 @@
 // Service worker de Pilier : tout est mis en cache pour marcher hors ligne.
-const CACHE = "pilier-v4";
+const CACHE = "pilier-v5";
 const FILES = [
   "./assets/button-BVrDykAX.js",
   "./assets/chevron-left-DYPWKxBk.js",
@@ -39,7 +39,7 @@ const FILES = [
   "./audio/c-rdl.mp3",
   "./audio/c-row.mp3",
   "./audio/compris.mp3",
-  "./audio/cooldown.mp3",
+  "./audio/etirements.mp3",
   "./audio/hello.mp3",
   "./audio/hold-done.mp3",
   "./audio/home-done.mp3",
@@ -95,7 +95,9 @@ const FILES = [
   "./audio/w-rdl.mp3",
   "./audio/w-row.mp3",
   "./audio/w-warmup.mp3",
-  "./audio/warmup.mp3",
+  "./audio/warmup-mal.mp3",
+  "./audio/warmup-normal.mp3",
+  "./audio/warmup-raide.mp3",
   "./corps/",
   "./exercises/bridge-side-down.jpg",
   "./exercises/bridge-side-up.jpg",
